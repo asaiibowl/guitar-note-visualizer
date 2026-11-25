@@ -24,7 +24,15 @@ if ($needsAdmin -and -not $admin) {
 
 New-Item -ItemType Directory -Force $dest | Out-Null
 $target = Join-Path $dest 'Guitar Note Visualizer.vst3'
-if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+$dll = Join-Path $target 'Contents\x86_64-win\Guitar Note Visualizer.vst3'
+if (Test-Path $dll) {
+  # A DAW that has the plugin loaded keeps the DLL locked; stop before deleting anything.
+  try { [IO.File]::Open($dll, 'Open', 'ReadWrite', 'None').Close() }
+  catch {
+    Write-Error 'The plugin is in use (e.g. Ableton Live is open). Close the DAW and run this again.'
+  }
+  Remove-Item -Recurse -Force $target
+}
 Copy-Item -Recurse $src $dest
 Write-Host "Installed: $target"
 Write-Host 'Ableton Live: Settings > Plug-Ins > turn on "Use VST3 Plug-in System Folders" and press Rescan.'

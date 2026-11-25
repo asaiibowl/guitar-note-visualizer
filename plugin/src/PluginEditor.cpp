@@ -18,6 +18,7 @@ juce::String mimeFor(const juce::String &path) {
   if (ext == "png") return "image/png";
   if (ext == "wasm") return "application/wasm";
   if (ext == "woff2") return "font/woff2";
+  if (ext == "txt" || !path.containsChar('.')) return "text/plain; charset=utf-8";
   return "application/octet-stream";
 }
 

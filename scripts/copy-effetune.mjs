@@ -15,4 +15,6 @@ if (!existsSync(src)) {
 rmSync(dest, { recursive: true, force: true });
 mkdirSync(dest, { recursive: true });
 cpSync(src, dest, { recursive: true });
+// Keep the package's licence and third-party notices next to the redistributed files.
+for (const f of ['LICENSE', 'THIRD_PARTY_NOTICES.txt']) cpSync(join(src, '..', f), join(dest, f));
 console.log('[copy-effetune] copied to public/vendor/effetune-dsp');

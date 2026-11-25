@@ -5,8 +5,9 @@
   "scripts": {
     "postinstall": "node scripts/copy-effetune.mjs",
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "build:plugin": "tsc --noEmit && vite build --mode plugin && node scripts/prune-plugin-ui.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/copy-notices.mjs dist",
+    "build:plugin": "tsc --noEmit && vite build --mode plugin && node scripts/prune-plugin-ui.mjs && node scripts/copy-notices.mjs dist-plugin",
+    "notices": "node scripts/build-notices.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },

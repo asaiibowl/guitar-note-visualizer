@@ -62,8 +62,11 @@ npm test
 
 ## ライセンス
 
-- [@effetune/dsp](https://github.com/Frieve-A/effetune)：MIT。同梱される PFFFT、fdlibm、mediabunny の表示は `public/vendor/effetune-dsp/` にコピーされる NOTICE ファイルに含まれている
-- [tonal](https://github.com/tonaljs/tonal)：MIT
+- このプロジェクト：Web アプリ（`src/` など）は [MIT](LICENSE)。VST3 / Standalone プラグイン（`plugin/`）は JUCE を AGPLv3 で使うため [AGPL-3.0](plugin/LICENSE.md)
+- 使っているライブラリの著作権表示とライセンス全文：[THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt)。`npm run build` / `npm run build:plugin` のたびに出力フォルダにも同梱され、アプリ画面下の「ライセンス表記」から読める
+  - 主なもの：[@effetune/dsp](https://github.com/Frieve-A/effetune)（MIT。PFFFT・fdlibm・mediabunny〔MPL-2.0〕を含む）、[tonal](https://github.com/tonaljs/tonal)（MIT）、プラグインでは JUCE 9（AGPLv3）、VST3 SDK（MIT）、WebView2 SDK（BSD-3-Clause）など
+  - ライブラリを更新したら `npm run notices` で作り直す
+- VST is a registered trademark of Steinberg Media Technologies GmbH.
 
 ## 既知の制約
 

@@ -338,6 +338,28 @@ const optionsDialog = bindOptionsDialog(settings, fretboardWrap, () => {
   hud.fitChordName(); // the panel text size may have changed
 });
 
+/* ---------- licence notices ---------- */
+
+const licensesDialog = $<HTMLDialogElement>('licenses-dialog');
+$('licenses-btn').addEventListener('click', () => {
+  licensesDialog.showModal();
+  const pre = $('licenses-text');
+  if (pre.dataset.loaded) return;
+  Promise.all(['LICENSE', 'THIRD_PARTY_NOTICES.txt'].map((f) => fetch(f).then((r) => (r.ok ? r.text() : Promise.reject(new Error(f))))))
+    .then(([own, third]) => {
+      pre.textContent = `Guitar Note Visualizer
+
+${own}
+
+${third}`;
+      pre.dataset.loaded = '1';
+    })
+    .catch(() => (pre.textContent = 'ライセンス表記を読み込めませんでした（LICENSE / THIRD_PARTY_NOTICES.txt）。'));
+});
+licensesDialog.addEventListener('click', (e) => {
+  if (e.target === licensesDialog) licensesDialog.close();
+});
+
 /* ---------- tuner ---------- */
 
 function runTuner(): void {

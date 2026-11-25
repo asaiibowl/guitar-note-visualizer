@@ -2,7 +2,7 @@
 
 ギターの入力をリアルタイムに解析し、単音名・コード名・度数を表示して、22フレットの指板上の該当位置をすべてハイライトするWebアプリ。
 
-**▶ ブラウザで使う：https://asaiibowl.github.io/guitar-note-visualizer/**（Chrome / Edge。インストール不要）
+▶ Webブラウザ版：https://asaiibowl.github.io/guitar-note-visualizer/ （Chrome / Edge。インストール不要）
 
 ## 使い方（ローカルで動かす）
 

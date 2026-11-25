@@ -29,13 +29,14 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Yu Gothic UI', system-ui, sans-serif; }
 
-.topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--panel); }
-.topbar h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: .02em; }
+.topbar { display: flex; flex-wrap: nowrap; align-items: center; gap: 16px; height: 52px; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.topbar h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: .02em; white-space: nowrap; flex: none; }
+.topbar > button, .topbar .meter { flex: none; }
 button { white-space: nowrap; background: #252b37; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; font: inherit; }
 button:hover { border-color: var(--accent); }
 button.primary { background: var(--accent); color: #1a1205; border: none; font-weight: 600; }
 button.primary.running { background: #2f3a2f; color: #9be29b; }
-.status { color: var(--muted); font-size: 13px; }
+.status { color: var(--muted); font-size: 13px; flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .meter { position: relative; width: 220px; height: 10px; background: #0a0c10; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
 #meter-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: linear-gradient(90deg, #3ddc97, #ffc43d 75%, #ff5a5f); transition: width 50ms linear; }
@@ -43,22 +44,26 @@ button.primary.running { background: #2f3a2f; color: #9be29b; }
 
 main { padding: 14px 18px 24px; display: flex; flex-direction: column; gap: 14px; }
 
-.readout { display: grid; grid-template-columns: minmax(260px, 1fr) 2fr; gap: 14px; }
+/* The read-out keeps a fixed size so the fretboard never jumps while chords change. */
+.readout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 14px; height: calc(176px * var(--ui-scale)); }
 .chord-box, .detail-box, fieldset { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-.chord-box { padding: 12px 18px; min-height: 150px; display: flex; flex-direction: column; justify-content: center; }
-#chord-name { font-size: calc(72px * var(--ui-scale)); font-weight: 700; line-height: 1.05; letter-spacing: .01em; }
+.chord-box { padding: 10px 18px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.chord-box > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; }
+#chord-name { --fit: 1; height: calc(80px * var(--ui-scale)); line-height: calc(80px * var(--ui-scale)); font-size: calc(72px * var(--ui-scale) * var(--fit)); font-weight: 700; letter-spacing: .01em; text-overflow: clip !important; }
 #chord-name[data-kind='none'] { color: #3a4150; }
 #chord-name[data-kind='single'] { color: var(--root); }
-#chord-name[data-kind='unknown'] { font-size: 40px; color: var(--muted); }
-#chord-func { color: var(--accent); font-size: calc(18px * var(--ui-scale)); font-weight: 600; min-height: 1.2em; }
-#chord-desc { color: var(--muted); font-size: 14px; margin-top: 4px; min-height: 1.2em; }
-#chord-alt { color: #6f7889; font-size: 13px; min-height: 1.2em; }
+#chord-name[data-kind='unknown'] { color: var(--muted); }
+#chord-func { color: var(--accent); font-size: calc(17px * var(--ui-scale)); font-weight: 600; height: 1.35em; }
+#chord-desc { color: var(--muted); font-size: 14px; height: 1.35em; }
+#chord-alt { color: #6f7889; font-size: 13px; height: 1.35em; }
 
-.detail-box { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.detail-box { padding: 10px 16px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
 .row { display: flex; align-items: center; gap: 12px; }
 .row.small { font-size: 12px; color: var(--muted); }
 .cap { width: 52px; flex: none; color: var(--muted); font-size: 13px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px; align-items: center; }
+.chips { display: flex; flex-wrap: nowrap; gap: 6px; height: calc(48px * var(--ui-scale)); align-items: center; overflow: hidden; min-width: 0; }
+.chips > * { flex: none; }
+.row.small { white-space: nowrap; overflow: hidden; }
 .chip, .note-chip { display: inline-flex; flex-direction: column; align-items: center; min-width: 44px; padding: 4px 8px; border-radius: 8px; background: #222835; border: 1px solid var(--line); }
 .chip b, .note-chip b { font-size: calc(18px * var(--ui-scale)); }
 .chip small, .note-chip small { font-size: calc(11px * var(--ui-scale)); color: var(--muted); }
@@ -123,13 +128,13 @@ output { width: 58px; text-align: right; color: var(--muted); font-variant-numer
 .roll canvas { width: 100%; image-rendering: pixelated; border-radius: 4px; }
 
 /* top bar extras */
-.spacer { flex: 1; }
+.spacer { display: none; }
 button[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
 .hint { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
 /* tuner */
 .tuner[hidden], .readout[hidden] { display: none; }
-.tuner { display: grid; grid-template-columns: minmax(200px, 1fr) 3fr minmax(200px, 1fr); gap: 18px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; min-height: 150px; }
+.tuner { display: grid; grid-template-columns: minmax(200px, 1fr) 3fr minmax(200px, 1fr); gap: 18px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 20px; height: calc(176px * var(--ui-scale)); overflow: hidden; }
 .tuner-main { text-align: center; }
 .tuner-note { font-size: 80px; font-weight: 700; line-height: 1; color: var(--muted); }
 .tuner-note.in-tune { color: var(--fifth); }
@@ -162,8 +167,7 @@ dialog.options h3 { margin: 10px 0 2px; font-size: 13px; color: var(--accent); f
 dialog.options .hint { margin-top: 10px; }
 
 @media (max-width: 900px) {
-  .readout, .tuner { grid-template-columns: 1fr; }
-  #chord-name { font-size: calc(56px * var(--ui-scale)); }
+  .readout, .tuner { grid-template-columns: minmax(0, 1fr); height: calc(320px * var(--ui-scale)); }
 }
 
 /* inside the VST3 / Standalone plugin: input comes from the host */

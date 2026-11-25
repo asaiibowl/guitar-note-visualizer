@@ -36,8 +36,10 @@ export class Hud {
     if (key !== this.lastKey) {
       this.lastKey = key;
       this.funcEl.textContent = guide ? this.functionText(shown, guide, accidental) : '';
+      this.funcEl.title = this.funcEl.textContent; // full text when cut off
       this.chordEl.textContent = shown.kind === 'none' ? '—' : shown.name;
       this.chordEl.dataset.kind = shown.kind;
+      this.fitChordName();
       this.descEl.textContent = shown.description;
       this.altEl.textContent = shown.alternatives.length ? `別解釈: ${shown.alternatives.join(' / ')}` : '';
       const degrees = [...shown.degrees.entries()].sort((a, b) => DEGREE_ORDER(a[1]) - DEGREE_ORDER(b[1]));
@@ -66,6 +68,15 @@ export class Hud {
         }),
       );
     }
+  }
+
+  /** Shrink the chord name to fit its box instead of letting the box grow. */
+  fitChordName(): void {
+    const el = this.chordEl;
+    el.style.setProperty('--fit', '1');
+    const avail = el.clientWidth;
+    const need = el.scrollWidth;
+    if (avail > 0 && need > avail) el.style.setProperty('--fit', String(Math.max(0.3, (avail / need) * 0.97)));
   }
 
   private functionText(shown: ChordAnalysis, guide: GuideScale, accidental: Accidental): string {

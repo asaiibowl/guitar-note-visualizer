@@ -31,6 +31,7 @@ const roll = new PianoRoll($<HTMLCanvasElement>('piano-roll'), GUITAR_MIN, GUITA
 const tracker = new NoteTracker({ minMidi: GUITAR_MIN, maxMidi: GUITAR_MAX });
 const stabilizer = new ChordStabilizer(2, 3);
 const fretboardWrap = $('fretboard-wrap');
+window.addEventListener('resize', () => hud.fitChordName());
 const tuner = new TunerView();
 
 // Shown on the fretboard while the Options dialog is open and nothing is sounding.
@@ -173,7 +174,9 @@ function renderLatency(): void {
 }
 
 function setStatus(text: string): void {
-  $('status').textContent = text;
+  const el = $('status');
+  el.textContent = text;
+  el.title = text; // full text on hover when it is cut off
 }
 
 async function populateDevices(): Promise<void> {
@@ -332,6 +335,7 @@ applyGuide();
 
 const optionsDialog = bindOptionsDialog(settings, fretboardWrap, () => {
   dirty = true;
+  hud.fitChordName(); // the panel text size may have changed
 });
 
 /* ---------- tuner ---------- */

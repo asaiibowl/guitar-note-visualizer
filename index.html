@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guitar Note Visualizer</title>
+    <link rel="stylesheet" href="/src/ui/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Guitar Note Visualizer</h1>
+      <button id="start-btn" class="primary">▶ 開始（入力を有効化）</button>
+      <div class="meter" title="入力レベル（ゲイン適用後）">
+        <div id="meter-fill"></div>
+        <div id="meter-gate"></div>
+      </div>
+      <span id="status" class="status">停止中</span>
+      <span class="spacer"></span>
+      <button id="tuner-btn" aria-pressed="false">🎯 チューナー</button>
+      <button id="options-btn">⚙ Options</button>
+    </header>
+
+    <main>
+      <section id="tuner" class="tuner" hidden>
+        <div class="tuner-main">
+          <div id="tuner-note" class="tuner-note">—</div>
+          <div class="tuner-sub"><span id="tuner-freq">— Hz</span><span id="tuner-cents">— ¢</span></div>
+        </div>
+        <div class="tuner-scale-wrap">
+          <div class="tuner-scale">
+            <div class="tuner-zone"></div>
+            <div class="tuner-ticks"><span>-50</span><span>-25</span><span>0</span><span>+25</span><span>+50</span></div>
+            <div id="tuner-needle" class="tuner-needle"></div>
+          </div>
+          <div id="tuner-string" class="tuner-string">弦を1本ずつ鳴らしてください</div>
+          <div id="tuner-strings" class="tuner-strings"></div>
+        </div>
+        <div class="tuner-side">
+          <label>基準 A4 <input id="tuner-a4" type="number" min="415" max="466" step="1" /> Hz</label>
+          <p class="hint">開放弦を1本ずつ鳴らします。針が中央の緑の帯（±3¢以内）に入れば合っています。</p>
+        </div>
+      </section>
+
+      <section id="readout" class="readout">
+        <div class="chord-box">
+          <div id="chord-name" data-kind="none">—</div>
+          <div id="chord-func"></div>
+          <div id="chord-desc"></div>
+          <div id="chord-alt"></div>
+        </div>
+        <div class="detail-box">
+          <div class="row"><span class="cap">度数</span><div id="degree-list" class="chips"></div></div>
+          <div class="row"><span class="cap">検出音</span><div id="note-list" class="chips"></div></div>
+          <div class="row small"><span id="engine-hint">EffeTune推定: —</span></div>
+        </div>
+      </section>
+
+      <section id="fretboard-wrap" class="fretboard-wrap"></section>
+
+      <section class="panels">
+        <fieldset>
+          <legend>入力</legend>
+          <label>デバイス <select id="device-select"><option value="">（開始後に選択）</option></select></label>
+          <label>チャンネル
+            <select id="channel-select">
+              <option value="0">入力 1</option>
+              <option value="1">入力 2</option>
+              <option value="mix">ミックス</option>
+            </select>
+          </label>
+          <label>入力ゲイン <input id="gain" type="range" min="-12" max="36" step="1" /> <output id="gain-out"></output></label>
+          <label>ノイズゲート <input id="gate" type="range" min="-90" max="-20" step="1" /> <output id="gate-out"></output></label>
+          <label>検出しきい値 <input id="threshold" type="range" min="0.3" max="0.9" step="0.05" /> <output id="threshold-out"></output></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>ガイド（キー／スケール）</legend>
+          <label><input id="guide-on" type="checkbox" /> 指板にスケールを表示</label>
+          <label>キー
+            <select id="guide-tonic"></select>
+            <select id="guide-scale"></select>
+          </label>
+          <p class="hint">スケールの音を輪で表示し、主音は塗りつぶします。スケール外の音を弾くと赤い破線で囲みます。コード名にはキーの中での度数（ローマ数字）が付きます。</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>表示</legend>
+          <label><input id="flat" type="checkbox" /> ♭表記（オフで♯）</label>
+          <label><input id="degree-mode" type="checkbox" /> 指板ラベルを度数で表示</label>
+          <label><input id="octaves" type="checkbox" /> 他オクターブの同じ音も薄く表示</label>
+          <label><input id="all-names" type="checkbox" /> 全フレットの音名を常時表示</label>
+          <div class="legend">
+            <span class="chip f-root"><b>R</b></span><span class="chip f-third"><b>3</b></span><span class="chip f-fifth"><b>5</b></span><span class="chip f-seventh"><b>7</b></span><span class="chip f-ninth"><b>9/2</b></span><span class="chip f-eleventh"><b>11/4</b></span><span class="chip f-thirteenth"><b>13/6</b></span><span class="chip f-alt"><b>♭5/♯5</b></span>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>テスト信号・遅延計測</legend>
+          <div id="test-buttons" class="test-buttons"></div>
+          <label><input id="monitor-test" type="checkbox" /> テスト信号をスピーカーで鳴らす</label>
+          <div id="latency" class="latency">—</div>
+        </fieldset>
+
+        <fieldset class="roll">
+          <legend>エンジン出力（デバッグ）</legend>
+          <canvas id="piano-roll" width="560"></canvas>
+        </fieldset>
+      </section>
+    </main>
+    <dialog id="options-dialog" class="options">
+      <form method="dialog">
+        <h2>Options（見やすさ）</h2>
+        <div class="opt-grid">
+          <h3>指板の音名ラベル</h3>
+          <label>文字サイズ <input id="opt-label-scale" type="range" min="0.8" max="2" step="0.05" /> <output id="opt-label-scale-out"></output></label>
+          <label>文字の太さ <input id="opt-label-weight" type="range" min="300" max="900" step="100" /> <output id="opt-label-weight-out"></output></label>
+          <label><input id="opt-label-auto" type="checkbox" /> 文字の明度を自動にする（濃いマーカーは黒、薄いマーカーは白）</label>
+          <label>文字の明度 <input id="opt-label-lightness" type="range" min="0" max="100" step="1" /> <output id="opt-label-lightness-out"></output></label>
+          <label><input id="opt-label-outline" type="checkbox" /> 文字にフチ取りを付ける</label>
+
+          <h3>マーカーの明度</h3>
+          <label>弾いた位置（濃い） <input id="opt-exact-bright" type="range" min="0.5" max="1.5" step="0.05" /> <output id="opt-exact-bright-out"></output></label>
+          <label>同じ音名の他の位置（薄い） <input id="opt-pc-opacity" type="range" min="0.1" max="1" step="0.02" /> <output id="opt-pc-opacity-out"></output></label>
+          <label>ガイドのスケール音 <input id="opt-guide-opacity" type="range" min="0.15" max="1" step="0.05" /> <output id="opt-guide-opacity-out"></output></label>
+          <label>全フレットの音名（常時表示） <input id="opt-names-alpha" type="range" min="0.08" max="1" step="0.02" /> <output id="opt-names-alpha-out"></output></label>
+
+          <h3>上部パネル</h3>
+          <label>コード名・音名の文字サイズ <input id="opt-ui-scale" type="range" min="0.8" max="1.6" step="0.05" /> <output id="opt-ui-scale-out"></output></label>
+        </div>
+        <p class="hint">開いている間は、何も鳴っていなければ指板にプレビュー（C/E と Cメジャースケール）を表示します。</p>
+        <div class="opt-actions">
+          <button type="button" id="opt-reset">初期値に戻す</button>
+          <button value="close" class="primary">閉じる</button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

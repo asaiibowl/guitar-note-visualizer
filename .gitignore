@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/vendor/
+
+.claude/settings.local.json
+dist-plugin/
+plugin/build/
+plugin/third_party/
